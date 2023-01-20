@@ -100,12 +100,40 @@ class LoadController extends Controller
     function getrekappengelola()
     {
         $reserve = DB::table('reservasis');
+        $bulanawal = date('Y-m');
+        $bulanakhir = "".date('Y')."-12"; 
+        $tahunawal = date('Y'); 
+        $tahunakhir = date('Y'); 
 
-        $user = User::find(Auth::user()->id);
-        $parkir = reservasi::where('parkir_id', '=', Auth::user()->id)->get();
+        $months = reservasi::select(DB::raw('DISTINCT MONTHNAME(checkindate) bulan'))
+        ->leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+        ->whereRaw("MONTH(checkindate) >= ".date('m')."")
+        ->whereRaw("MONTH(checkindate) <= 12")
+        ->whereRaw("YEAR(checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(checkindate) <= $tahunakhir")
+        ->where('parkir_id', '=', Auth::user()->id)
+        ->orderBy('checkindate', 'asc')
+        ->pluck('bulan');
 
+        $pendapatan = reservasi::select(DB::raw('CAST(SUM(biayatotal) AS INT) biayatotal'))
+        ->leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+        ->whereRaw("MONTH(reservasis.checkindate) >= ".date('m')."")
+        ->whereRaw("MONTH(reservasis.checkindate) <= 12")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->where('parkir_id', '=', Auth::user()->id)
+        ->orderBy('checkindate', 'asc')
+        ->groupByRaw('MONTH(checkindate)')
+        ->pluck('biayatotal');
 
-        // $parkir = reservasi::all()->where('parkir_id', Auth::user()->id);
+        $saldoadmin = 
+        reservasi::leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+        ->whereRaw("MONTH(checkindate) >= ".date('m')."")
+        ->whereRaw("MONTH(checkindate) <= 12")
+        ->whereRaw("YEAR(checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(checkindate) <= $tahunakhir")
+        ->where('parkir_id', '=', Auth::user()->id)
+        ->sum('biayatotal');
 
         $data = $reserve
             ->select('reservasis.*', 'reg_parkirs.slot')
@@ -114,14 +142,111 @@ class LoadController extends Controller
             ->where('parkir_id', '=', Auth::user()->id)
             ->get();
 
-        // dd($data);
+        // dd($saldoadmin);
 
-        return view('pengelola.rekap', ['rekap' => $data]);
+        return view('pengelola.rekap')->with('rekap', $data)->with('pendapatan', $pendapatan)->with('months', $months)->with('saldoadmin', $saldoadmin)->with('bulanakhir', $bulanakhir)->with('bulanawal', $bulanawal);
+    }
+
+    function filterrekap(Request $request)
+    {
+        $reserve = DB::table('reservasis');
+        $bulanawal = $request->bulanawal;
+        $bulanawalparsed = date('m', strtotime($bulanawal));
+        $tahunawal = date('Y', strtotime($bulanawal));
+        
+        $bulanakhir = $request->bulanakhir;
+        $bulanakhirparsed = date('m', strtotime($bulanakhir));
+        $tahunakhir = date('Y', strtotime($bulanakhir));
+
+        $saldoadmin = 
+        reservasi::leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+        ->whereRaw("MONTH(checkindate) >= $bulanawalparsed")
+        ->whereRaw("MONTH(checkindate) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(checkindate) <= $tahunakhir")
+        ->where('parkir_id', '=', Auth::user()->id)
+        ->sum('biayatotal');
+
+        $months = reservasi::select(DB::raw('DISTINCT MONTHNAME(checkindate) bulan'))
+        ->leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+        ->whereRaw("MONTH(checkindate) >= $bulanawalparsed")
+        ->whereRaw("MONTH(checkindate) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(checkindate) <= $tahunakhir")
+        ->where('parkir_id', '=', Auth::user()->id)
+        ->orderBy('checkindate', 'asc')
+        ->pluck('bulan');
+
+        $pendapatan = reservasi::select(DB::raw('CAST(SUM(biayatotal) AS INT) biayatotal'))
+        ->leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+        ->whereRaw("MONTH(reservasis.checkindate) >= $bulanawalparsed")
+        ->whereRaw("MONTH(reservasis.checkindate) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->where('parkir_id', '=', Auth::user()->id)
+        ->orderBy('checkindate', 'asc')
+        ->groupByRaw('MONTH(checkindate)')
+        ->pluck('biayatotal');
+
+        $data = $reserve
+            ->select('reservasis.*', 'reg_parkirs.slot')
+            ->leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+            ->leftJoin('users', 'users.id', 'reg_parkirs.user_id')
+            ->where('parkir_id', '=', Auth::user()->id)
+            ->get();
+
+        // dd($saldoadmin);
+
+        return view('pengelola.rekap')->with('rekap', $data)->with('months', $months)->with('pendapatan', $pendapatan)->with('saldoadmin', $saldoadmin)->with('bulanakhir', $bulanakhir)->with('bulanawal', $bulanawal);
     }
 
     function admingetanalytics()
     {
         $reserve = DB::table('reservasis');
+        $bulanawal = date('Y-m');
+        $bulanakhir = "".date('Y')."-12";
+        $tahunawal = date('Y'); 
+        $tahunakhir = date('Y');
+
+        $months = reservasi::select(DB::raw('DISTINCT MONTHNAME(checkindate) bulan'))
+        ->whereRaw("MONTH(reservasis.checkindate) >= ".date('m')."")
+        ->whereRaw("MONTH(reservasis.checkindate) <= 12")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->orderBy('checkindate', 'asc')
+        ->pluck('bulan');
+        // ->get();
+        // ->toArray();
+
+        $pendapatan = reservasi::select(DB::raw('CAST(SUM(biayatotal) AS INT) biayatotal'))
+        ->whereRaw("MONTH(reservasis.checkindate) >= ".date('m')."")
+        ->whereRaw("MONTH(reservasis.checkindate) <= 12")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->orderBy('checkindate', 'asc')
+        ->groupByRaw('MONTH(checkindate)')
+        ->pluck('biayatotal');
+
+        $saldoadmin = 
+        reservasi::whereRaw("MONTH(reservasis.checkindate) >= ".date('m')."")
+        ->whereRaw("MONTH(reservasis.checkindate) <= 12")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->sum('biayatotal');
+
+        $jumlahuser = User::where('role', '=', 'member')
+        ->whereRaw("MONTH(users.created_at) >= ".date('m')."")
+        ->whereRaw("MONTH(users.created_at) <= 12")
+        ->whereRaw("YEAR(users.created_at) >= $tahunawal")
+        ->whereRaw("YEAR(users.created_at) <= $tahunakhir")
+        ->count();
+
+        $jumlahperusahaan = User::where('role', '=', 'pengelola')
+        ->whereRaw("MONTH(users.created_at) >= ".date('m')."")
+        ->whereRaw("MONTH(users.created_at) <= 12")
+        ->whereRaw("YEAR(users.created_at) >= $tahunawal")
+        ->whereRaw("YEAR(users.created_at) <= $tahunakhir")
+        ->count();
 
         $data = $reserve
             ->select('reservasis.*', 'reg_parkirs.slot', 'users.saldo')
@@ -129,9 +254,70 @@ class LoadController extends Controller
             ->leftJoin('users', 'users.id', 'reg_parkirs.user_id')
             ->get();
 
-        //  dd($data);
+        // dd($pendapatan);
 
-        return view('admin.analytics', ['analytics' => $data]);
+        return view('admin.analytics')->with('analytics', $data)->with('months', $months)->with('pendapatan', $pendapatan)->with('saldoadmin', $saldoadmin)->with('jumlahuser', $jumlahuser)->with('jumlahperusahaan', $jumlahperusahaan)->with('bulanakhir', $bulanakhir)->with('bulanawal', $bulanawal); 
+    }
+
+    function adminfilteranalytics(Request $request)
+    {
+        $bulanawal = $request->bulanawal;
+        $bulanawalparsed = date('m', strtotime($bulanawal));
+        $tahunawal = date('Y', strtotime($bulanawal));
+        
+        $bulanakhir = $request->bulanakhir;
+        $bulanakhirparsed = date('m', strtotime($bulanakhir));
+        $tahunakhir = date('Y', strtotime($bulanakhir));
+
+        $reserve = DB::table('reservasis');
+
+        $months = reservasi::select(DB::raw('DISTINCT MONTHNAME(checkindate) bulan'))
+        ->whereRaw("MONTH(reservasis.checkindate) >= $bulanawalparsed")
+        ->whereRaw("MONTH(reservasis.checkindate) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->orderBy('checkindate', 'asc')
+        ->pluck('bulan');
+
+        $pendapatan = reservasi::select(DB::raw('CAST(SUM(biayatotal) AS INT) biayatotal'))
+        ->whereRaw("MONTH(reservasis.checkindate) >= $bulanawalparsed")
+        ->whereRaw("MONTH(reservasis.checkindate) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->orderBy('checkindate', 'asc')
+        ->groupByRaw('MONTH(checkindate)')
+        ->pluck('biayatotal');
+
+        $saldoadmin = 
+        reservasi::whereRaw("MONTH(reservasis.checkindate) >= $bulanawalparsed")
+        ->whereRaw("MONTH(reservasis.checkindate) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(reservasis.checkindate) >= $tahunawal")
+        ->whereRaw("YEAR(reservasis.checkindate) <= $tahunakhir")
+        ->sum('biayatotal');
+
+        $jumlahuser = User::where('role', '=', 'member')
+        ->whereRaw("MONTH(users.created_at) >= $bulanawalparsed")
+        ->whereRaw("MONTH(users.created_at) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(users.created_at) >= $tahunawal")
+        ->whereRaw("YEAR(users.created_at) <= $tahunakhir")
+        ->count();
+
+        $jumlahperusahaan = User::where('role', '=', 'pengelola')
+        ->whereRaw("MONTH(users.created_at) >= $bulanawalparsed")
+        ->whereRaw("MONTH(users.created_at) <= $bulanakhirparsed")
+        ->whereRaw("YEAR(users.created_at) >= $tahunawal")
+        ->whereRaw("YEAR(users.created_at) <= $tahunakhir")
+        ->count();
+
+        $data = $reserve
+            ->select('reservasis.*', 'reg_parkirs.slot', 'users.saldo')
+            ->leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
+            ->leftJoin('users', 'users.id', 'reg_parkirs.user_id')
+            ->get();
+
+        // dd($bulanawalparsed);
+
+        return view('admin.analytics')->with('analytics', $data)->with('months', $months)->with('pendapatan', $pendapatan)->with('saldoadmin', $saldoadmin)->with('jumlahuser', $jumlahuser)->with('jumlahperusahaan', $jumlahperusahaan)->with('bulanakhir', $bulanakhir)->with('bulanawal', $bulanawal); 
     }
 
     function admingettransaksi()
@@ -188,6 +374,13 @@ class LoadController extends Controller
         return view('admin.user')->with('data', $data);
     }
 
+    function admingetprofile()
+    {
+        $user = User::find(Auth::user()->id);
+
+        return view('admin.profile')->with('user', $user);
+    }
+
     function admingetpengelola()
     {
         $data = User::all();
@@ -222,7 +415,7 @@ class LoadController extends Controller
         // $parkir = reservasi::all()->where('parkir_id', Auth::user()->id);
 
         $data = $reserve
-            ->select('reservasis.*', 'reg_parkirs.name', 'reg_parkirs.image', 'reg_parkirs.lokasi','reg_parkirs.slot', 'users.saldo', 'users.name')
+            ->select('reservasis.*', 'reg_parkirs.name', 'reg_parkirs.image', 'reg_parkirs.lokasi','reg_parkirs.slot', 'reg_parkirs.biaya', 'users.saldo', 'users.name')
             ->leftJoin('reg_parkirs', 'reg_parkirs.id', 'reservasis.parkir_id')
             ->leftJoin('users', 'users.id', 'reservasis.user_id')
             ->where('reservasis.user_id', '=', Auth::user()->id)

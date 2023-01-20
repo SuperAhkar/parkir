@@ -14,6 +14,11 @@
 </head>
 
 <body>
+    <?php
+        use App\Models\reservasi;
+        use App\Models\User;
+        use Illuminate\Support\Facades\Auth;
+    ?>
     <nav class="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
         <div class="container flex flex-wrap items-center justify-between mx-auto px-12">
             <a href="{{ route('user.search') }}" class="flex items-center">
@@ -28,7 +33,12 @@
             <div class="w-2/12 flex justify-between items-center" id="navbar-default">
                 <div class="row">
                     <div class="col">
-                        <p>Dashboard</p>
+                        <p>
+                        <?php
+                            $username = User::find(Auth::user()->id);
+                        ?>
+                        {{$username->name}}
+                        </p>
                     </div>
                     <div class="col">
                         <i class="fas fa-user-circle" style="font-size: 20px;margin-left:-15px;"></i>
@@ -116,6 +126,10 @@
                     <a href="{{ route('admin.pengelola') }}" class="hover:bg-grayBackground hover:text-blueDark flex items-center pl-3.5 py-2 text-base rounded-lg {{ Route::is('admin.pengelola') ? 'bg-grayBackground text-blueDark' : ''}}" aria-current="page">
                         <i class="fa-solid fa-briefcase"></i>
                         <span class="truncate">&nbsp;&nbsp; Pengelola </span>
+                    </a>
+                    <a href="{{ route('admin.profile') }}" class="hover:bg-grayBackground hover:text-blueDark flex items-center pl-3.5 py-2 text-base rounded-lg {{ Route::is('admin.profile') ? 'bg-grayBackground text-blueDark' : ''}}" aria-current="page">
+                        <i class="fa-solid fa-edit"></i>
+                        <span class="truncate">&nbsp;&nbsp; Profile </span>
                     </a>
                 </nav>
 

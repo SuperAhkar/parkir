@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Console\Input\Input;
+use Carbon\Carbon;
 
 class CrudController extends Controller
 {
@@ -63,7 +64,23 @@ class CrudController extends Controller
         $user->name = $request->name;
         $user->password = bcrypt($request->password);
         $user->save();
-        return redirect('pengelola.profile');
+        return redirect()->route('pengelola.profile');
+    }
+
+    function doupdateprofileadmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|max:255',
+            'email' => 'required',
+            'password' => 'required',
+        ]);
+
+        $user = User::find($request->id);
+        $user->name = $request->name;
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return redirect()->route('admin.profile');
     }
 
 
@@ -115,13 +132,13 @@ class CrudController extends Controller
         $reserves = reservasi::find($request->id);
         $reserves->status = $request->status;
 
-        $users = User::find(Auth::user()->id);
-        $users->saldo = $request->saldo;
+        // $users = User::find(Auth::user()->id);
+        // $users->saldo = $request->saldo;
 
         $reserves->info = $request->info;
 
         $reserves->save();
-        $users->save();
+        // $users->save();
         $parkir->save();
 
         return redirect()->route('pengelola.dashboard');
@@ -135,17 +152,37 @@ class CrudController extends Controller
         ]);
 
         $admin = User::find($request->adminid);
-        $admin->saldo = $request->input('saldo');
+        $totalJam = intval($request->jam);
+        if($totalJam == 0){
+            $totalJam = intval(1);
+        }
+        $totalBiaya = intval($request->input('saldo'));
+        $jumlah = $totalJam * $totalBiaya + intval($admin->saldo);
+        $admin->saldo = $jumlah;
+
+        $user = User::find(Auth::user()->id);
+        $user->saldo = intval($user->saldo) - ($totalJam * $totalBiaya);
 
         $parkir = RegParkir::find($request->parkir_id);
         $parkir->slot = $request->slot;
+
+        $pengelola = User::find($parkir->user_id);
+        $pengelola->saldo = $totalJam * $totalBiaya + intval($pengelola->saldo);
         
         $reserves = reservasi::find($request->id);
+        $curDate = date('Y-m-d');
+        $curTime = date('H:i');
         $reserves->info = $request->info;
+        $reserves->biayatotal = $totalJam * $totalBiaya;
+        $reserves->checkoutdate = $curDate;
+        $reserves->checkouttime = $curTime;
+        $reserves->lamaparkir = $totalJam;
 
         $reserves->save();
         $parkir->save();
         $admin->save();
+        $user->save();
+        $pengelola->save();
 
         return redirect()->route('user.search');
     }

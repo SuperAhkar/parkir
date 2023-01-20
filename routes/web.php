@@ -41,6 +41,7 @@ Route::prefix('pengelola')->group(function () {
     Route::get('/dashboard', [LoadController::class, 'getdashboardpengelola'])->name('pengelola.dashboard')->middleware('pengelolaonly');
     Route::post('/dashboard', [CrudController::class, 'pengelolaupdatestatus'])->name('pengelola.update');
     Route::post('/rekap', [CrudController::class, 'pengelolatopup'])->name('pengelola.topup');
+    Route::post('/filter', [LoadController::class, 'filterrekap'])->name('pengelola.filter')->middleware('pengelolaonly');
     Route::get('/rekap', [LoadController::class, 'getrekappengelola'])->name('pengelola.rekap')->middleware('pengelolaonly');
     Route::get('/info', [LoadController::class, 'pengelolainfo'])->name('pengelola.info')->middleware('pengelolaonly');
     Route::get('/profile', [LoadController::class, 'updateprofilepengelola'])->name('pengelola.profile')->middleware('pengelolaonly');
@@ -50,6 +51,7 @@ Route::prefix('pengelola')->group(function () {
 
 Route::prefix('admin')->group(function () {
     Route::get('/analytics', [LoadController::class, 'admingetanalytics'])->name('admin.analytics')->middleware('adminonly');
+    Route::post('/analytics', [LoadController::class, 'adminfilteranalytics'])->name('admin.filter')->middleware('adminonly');
     Route::get('/transaksi', [LoadController::class, 'admingettransaksi'])->name('admin.transaksi')->middleware('adminonly');
     Route::post('/searchtransaksi', [LoadController::class, 'admingetsearchtransaksi'])->name('admin.searchtransaksi')->middleware('adminonly');
     Route::post('/transaksi', [CrudController::class, 'adminbatalkanreservasi'])->name('admin.selesai');
@@ -59,6 +61,8 @@ Route::prefix('admin')->group(function () {
     Route::post('/searchuser', [LoadController::class, 'adminsearchuser'])->name('admin.searchuser')->middleware('adminonly');
     Route::get('/pengelola', [LoadController::class, 'admingetpengelola'])->name('admin.pengelola')->middleware('adminonly');
     Route::post('/searchpengelola', [LoadController::class, 'adminsearchpengelola'])->name('admin.searchpengelola')->middleware('adminonly');
+    Route::get('/profile', [LoadController::class, 'admingetprofile'])->name('admin.profile')->middleware('adminonly');
+    Route::post('/profile', [CrudController::class, 'doupdateprofileadmin'])->name('admin.updateprofile')->middleware('adminonly');
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {

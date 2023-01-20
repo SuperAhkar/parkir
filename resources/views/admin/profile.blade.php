@@ -33,7 +33,7 @@
 
 <div class="w-10/12 ml-3 bg-white border border-gray-200 rounded-2xl shadow-md max-h-80vh overflow-auto p-4">
     <div class="mt-4">
-        <form action="" method="post" enctype="multipart/form-data">
+        <form action="{{ route('admin.updateprofile') }}" method="post" enctype="multipart/form-data">
             @csrf
             <div>
                 <input type="hidden" value="{{ $user->id }}" name="id">

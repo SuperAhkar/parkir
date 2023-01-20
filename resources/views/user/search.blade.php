@@ -99,32 +99,34 @@
                 <p class="truncate text-lg font-medium">{{$pd->name}}</p>
                 <p class="truncate">{{$pd->lokasi}}</p>
                 <p class="cidate">{{$pd->checkindate}}</p>
-                <p class="truncate">{{$pd->checkintime}} - {{$pd->checkouttime}} ({{$pd->lamaparkir}} jam)</p>
+                <p class="truncate">{{$pd->checkintime}}</p>
+                <!-- <p class="truncate">{{$pd->checkintime}} - {{$pd->checkouttime}} ({{$pd->lamaparkir}} jam)</p> -->
                 <p class="cotime" style="display: none;">{{$pd->checkouttime}}</p>
                 <p class="citime" style="display: none;">{{$pd->checkintime}}</p>
                 <p class="codate" style="display: none;">{{$pd->checkoutdate}}</p>
-                <p class="truncate">{{$pd->biayatotal}}</p>
+                <p class="truncate">Rp. {{$pd->biaya}}</p>
             </div>
         </div>
         <div class="mt-2 flex justify-between items-start">
             <div class="contain flex justify-between items-center w-100 px-20 py-3 bg-green rounded-lg mr-3">
-                <p>Durasi Tersisa</p>
+                <p>Durasi Aktif</p>
                 <p class="durasisisa" id="durasisisa"></p>
             </div>
             <input class="slotsekarang" type="hidden" id="slotsekarang" name="slotsekarang" value="{{$pd->slot}}">
             <input class="adminsaldo" type="hidden" id="adminsaldo" name="adminsaldo" value="{{$admin_saldo}}">
-            <input class="total_biaya" type="hidden" id="total_biaya" name="total_biaya" value="{{$pd->biayatotal}}">
+            <!-- <input class="total_biaya" type="ff" id="total_biaya" name="total_biaya" value="{{$pd->biaya}}"> -->
             <form action="{{ route('user.update') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" id="id" name="id" value="{{$pd->id}}">
                 <input class="adminid" type="hidden" id="adminid" name="adminid" value="{{$admin_id}}">
                 <input type="hidden" id="parkir_id" name="parkir_id" value="{{$pd->parkir_id}}">
                 <input class="slot" type="hidden" id="slot" name="slot">
-                <input class="saldo" type="hidden" id="saldo" name="saldo">
+                <input class="saldo" type="hidden" id="saldo" name="saldo" value="{{$pd->biaya}}">
+                <input class="jam" type="hidden" id="jam" name="jam">
                 <input type="hidden" id="info" name="info" value="nonaktif">
-                <div class="tombolselesai" style="display: none;">
-                    <button type="submit" class="bg-orange text-center py-3 rounded-lg" style="cursor: pointer;width:130px">
-                        Selesai
+                <div class="tombolselesai" style="display: block;">
+                    <button type="submit" class="bg-orange text-center py-4 rounded-lg" style="cursor: pointer;width:130px">
+                        Check Out
                     </button>
                 </div>
                 <div class="tombolbatal" style="display: none;">
@@ -158,17 +160,17 @@
     <script>
         for (var i = 0; i < document.getElementsByClassName('aselole').length; i++) {
             var y = document.getElementsByClassName('slotsekarang')[i].value;
-            var a = document.getElementsByClassName('adminsaldo')[i].value;
-            var b = document.getElementsByClassName('total_biaya')[i].value;
+            // var a = document.getElementsByClassName('adminsaldo')[i].value;
+            // var b = document.getElementsByClassName('total_biaya')[i].value;
 
             var slotnow = parseInt(y);
-            var saldoadmin = parseInt(a);
-            var totalbiaya = parseInt(b);
+            // var saldoadmin = parseInt(a);
+            // var totalbiaya = parseInt(b);
 
-            var saldosekarang = saldoadmin + totalbiaya;
+            // var saldosekarang = saldoadmin + totalbiaya;
             var sisa_slot = (slotnow + 1);
             document.getElementsByClassName("slot")[i].value = sisa_slot;
-            document.getElementsByClassName("saldo")[i].value = saldosekarang;
+            // document.getElementsByClassName("saldo")[i].value = saldosekarang;
         }
     </script>
     <script>
@@ -184,14 +186,14 @@
             Call(checkindate, checkouttime, checkintime, checkoutdate, i) {
                 var waktusekarang = new Date().getTime();
                 var now = new Date(checkindate + " " + checkintime).getTime();
-                var countDownDate = new Date(checkoutdate + " " + checkouttime).getTime();
+                // var countDownDate = new Date(checkoutdate + " " + checkouttime).getTime();
                 if (now <= waktusekarang) {
                     var x = setInterval(function() {
                         //Tabel Atas
                         var now = new Date().getTime();
+                        var sekarangbgt = new Date(checkindate + " " + checkintime).getTime();
                         //now += 4;
-
-                        var distance = countDownDate - now;
+                        var distance = now - sekarangbgt;
                         days = Math.floor(distance / (1000 * 60 * 60 * 24));
                         hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                         minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -204,7 +206,17 @@
                             document.getElementsByClassName("durasisisa")[i].innerHTML = hours + ":" +
                                 minutes + ":" + seconds;
                         }
+                        document.getElementsByClassName("jam")[i].value = hours;
+
                     }, 1);
+                    // setInterval(function () {
+                    //     var a = document.getElementsByClassName("saldo")[i].value;
+                    //     var b = document.getElementsByClassName('total_biaya')[i].value;
+                    //     var saldoadmin = parseInt(a);
+                    //     var totalbiaya = parseInt(b);
+                    //     var saldosekarang = saldoadmin + totalbiaya;
+                    //     document.getElementsByClassName("saldo")[i].value = saldosekarang;
+                    // }, 3600000);
                 } else if (waktusekarang > now) {
                     document.getElementsByClassName("durasisisa")[i].innerHTML = "DONE";
                     document.getElementsByClassName("tombolselesai")[i].style.display = "block";

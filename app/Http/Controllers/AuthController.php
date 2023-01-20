@@ -87,13 +87,13 @@ class AuthController extends Controller
             'tipekendaraan' => 'required',
             'checkindate'=>'required|date',
             'checkintime'=>'required|date_format:H:i',
-            'checkoutdate'=>'required|date|after_or_equal:checkindate',
-            'checkouttime'=>'required|date_format:H:i|after:checkintime',
-            'lamaparkir' => 'required',
+            // 'checkoutdate'=>'required|date|after_or_equal:checkindate',
+            // 'checkouttime'=>'required|date_format:H:i|after:checkintime',
+            // 'lamaparkir' => 'required',
             'metodebayar' => 'required',
         ]);
-        $users = User::find(Auth::user()->id);
-        $users->saldo = $request->saldo;
+        // $users = User::find(Auth::user()->id);
+        // $users->saldo = $request->saldo;
 
         $reservasi = new reservasi();
         $reservasi->user_id = Auth::user()->id;
@@ -102,16 +102,16 @@ class AuthController extends Controller
         $reservasi->tipekendaraan = $request->tipekendaraan;
         $reservasi->checkindate = $request->checkindate;
         $reservasi->checkintime = $request->checkintime;
-        $reservasi->checkoutdate = $request->checkoutdate;
-        $reservasi->checkouttime = $request->checkouttime;
+        // $reservasi->checkoutdate = $request->checkoutdate;
+        // $reservasi->checkouttime = $request->checkouttime;
         $reservasi->status = "unconfirmed";
         $reservasi->info = "belummulai";
-        $reservasi->lamaparkir = $request->lamaparkir;
-        $reservasi->biayatotal = $request->biayatotal;
+        // $reservasi->lamaparkir = $request->lamaparkir;
+        // $reservasi->biayatotal = $request->biayatotal;
         $reservasi->metodebayar = $request->metodebayar;
 
         $reservasi->save();
-        $users->save();
+        // $users->save();
 
         return redirect()->route('user.search')->with('success', 'Registrasi berhasil.');
     }

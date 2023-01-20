@@ -73,6 +73,10 @@
                                             <option value="shopeepay">ShopeePay</option>
                                         </select>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="formGroupExampleInput" class="form-label">Nomor Handphone</label>
+                                        <input class="form-control" placeholder="Masukkan Nomor Handphone">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -114,8 +118,9 @@
                                     <p class="cdwn" style="font-size:small;"></p>
                                 </td>
                                 <td>{{ $user_info->name }}</td>
-                                <td>{{$pd->checkintime}}-{{$pd->checkouttime}} ({{$pd->lamaparkir}} jam)
-                                    <br>Rp {{$pd->biayatotal}}
+                                <td>{{$pd->checkintime}}
+                                <!-- <td>{{$pd->checkintime}}-{{$pd->checkouttime}} ({{$pd->lamaparkir}} jam) -->
+                                    <!-- <br>Rp {{$pd->biayatotal}} -->
                                 </td>
                                 <p class="td1" style="display: none;">{{$pd->checkintime}}</p>
                                 <p class="date1" style="display: none;">{{$pd->checkindate}}</p>
@@ -169,10 +174,13 @@
                                 <p></p>
                             </td>
                             <td>{{ $user_info->name }}</td>
-                            <td>{{$pd->checkintime}}-{{$pd->checkouttime}} ({{$pd->lamaparkir}} jam)
-                                <br>Rp {{$pd->biayatotal}}
+                            <td style="text-align:center;">{{$pd->checkindate}}<br>
+                            <p style="font-size:13px;">{{$pd->checkintime}} - Sekarang</p>
+                            <!-- <td>{{$pd->checkintime}}-{{$pd->checkouttime}} ({{$pd->lamaparkir}} jam) -->
+                                <!-- <br>Rp {{$pd->biayatotal}} -->
                             </td>
-                            <td>Durasi tersisa<br>
+                            <!-- <td>Durasi tersisa<br> -->
+                            <td>
                                 <p class="durasisisa"></p>
                             </td>
                             <p class="cotime" style="display: none;">{{$pd->checkouttime}}</p>
@@ -311,6 +319,8 @@
                 var countDownDate = new Date(checkindate + " " + checkintime).getTime();
 
                 var distance = countDownDate - now;
+                // var distance = now - countDownDate;
+                
                 days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -357,10 +367,13 @@
                 var x = setInterval(function() {
                     //Tabel Atas
                     var now = new Date().getTime();
+                    var sekarangbgt = new Date(checkindate + " " + checkintime).getTime();
 
                     // now += 4;
 
-                    var distance = countDownDate - now;
+                    // var distance = countDownDate - now;
+                    var distance = now - sekarangbgt;
+
                     days = Math.floor(distance / (1000 * 60 * 60 * 24));
                     hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));

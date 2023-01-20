@@ -75,10 +75,11 @@
                         <td style="vertical-align:middle">{{$user_info->name}}
                         </td>
                         <td style="vertical-align:middle">{{$pengelola_info->name}}</td>
-                        <td>{{$tr->checkindate}}<br>
-                            <p style="font-size:13px;">{{$tr->checkintime}}-{{$tr->checkouttime}} ({{$tr->lamaparkir}} jam)</p>
+                        <td style="vertical-align: middle;text-align:center">{{$tr->checkindate}}<br>
+                            <p style="font-size:13px;">{{$tr->checkintime}} - Sekarang</p>
+                            <!-- <p style="font-size:13px;">{{$tr->checkintime}}-{{$tr->checkouttime}} ({{$tr->lamaparkir}} jam)</p> -->
                         </td>
-                        <td style="vertical-align: middle;">Rp {{$tr->biayatotal}}</td>
+                        <!-- <td style="vertical-align: middle;">Rp {{$tr->biayatotal}}</td> -->
                         <td>
                             <input type="hidden" id="slotsekarang" name="slotsekarang" value="{{$tr->slot}}">
                             <form action="{{ route('admin.selesai') }}" method="post" enctype="multipart/form-data">

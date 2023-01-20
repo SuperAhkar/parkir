@@ -84,7 +84,7 @@ use Illuminate\Support\Facades\Auth; ?>
                         <input type="time" class="form-control" placeholder="Waktu Checkin" name="checkintime" id="checkintime">
                     </div>
                 </div>
-                <div class="form-group mb-3 row">
+                <!-- <div class="form-group mb-3 row">
                     <label class="col-sm-4 col-form-label" for="exampleFormControlInput1">Check-out<span style="color:#FF0000;">*</span></label>
                     <div class="col-sm-4">
                         <input type="date" class="form-control" placeholder="Tanggal Checkout" name="checkoutdate" id="checkoutdate" required>
@@ -92,29 +92,29 @@ use Illuminate\Support\Facades\Auth; ?>
                     <div class="col-sm-4">
                         <input type="time" class="form-control" placeholder="Waktu Checkout" name="checkouttime" id="checkouttime">
                     </div>
-                </div>
+                </div> -->
                 <hr size="1" color="#000" style="width: 100%;">
-                <div class="form-group mb-3 row mt-2">
+                <!-- <div class="form-group mb-3 row mt-2">
                     <label class="col-sm-4" for="exampleFormControlInput1">Lama parkir</label>
                     <input type="hidden" class="form-control" id="lamaparkir" name="lamaparkir">
                     <div class="col-sm-8">
                         <p id="durasiparkir">0 Jam</p>
                     </div>
-                </div>
+                </div> -->
                 <div class="form-group mb-3 row">
                     <label class="col-sm-4" for="exampleFormControlInput1">Biaya per jam</label>
                     <div class="col-sm-8">
                         <p>Rp {{$data['biaya']}}</p>
                     </div>
                 </div>
-                <hr size="1" color="#000" style="width: 100%;">
+                <!-- <hr size="1" color="#000" style="width: 100%;">
                 <div class="form-group mb-3 row mt-2">
                     <label class="col-sm-4" for="exampleFormControlInput1">Biaya total</label>
                     <input type="hidden" class="form-control" id="biayatotal" name="biayatotal">
                     <div class="col-sm-8 totalbiaya">
                         <p id="totalbiaya">Rp 0</p>
                     </div>
-                </div>
+                </div> -->
                 <hr size="1" color="#000" style="width: 100%;">
 
                 <div class="form-group mb-3 row mt-3">
